@@ -7,15 +7,20 @@ import {
   Code2,
   Gamepad2,
   GraduationCap,
+  Globe,
   Menu,
   MessageSquareText,
   Moon,
+  Radio,
+  Send,
   Sparkles,
   Sun,
+  Users,
   X,
 } from 'lucide-react'
 import { Link, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import facultyLogo from './assets/logo/logo-square.png'
+import facultyLogoFull from './assets/logo/logo-full.jpg'
 import './App.css'
 
 type Direction =
@@ -852,8 +857,38 @@ function NominationCard({ nomination }: { nomination: Nomination }) {
 function Footer() {
   return (
     <footer className="site-footer">
-      <span>Выпуск 2026</span>
-      <p>Северо-Осетинский государственный университет имени Коста Левановича Хетагурова</p>
+      <div className="footer-brand">
+        <img src={facultyLogoFull} alt="Логотип факультета математики и компьютерных наук" />
+        <div>
+          <span>Выпуск 2026</span>
+          <p>Северо-Осетинский государственный университет имени Коста Левановича Хетагурова</p>
+        </div>
+      </div>
+
+      <div className="footer-links" aria-label="Социальные сети факультета">
+        <a href="https://www.nosu.ru/facultet/it/o-fakultete/" target="_blank" rel="noreferrer">
+          <Globe size={17} />
+          Сайт СОГУ
+        </a>
+        <a href="https://vk.com/mit_nosu" target="_blank" rel="noreferrer">
+          <Users size={17} />
+          VK
+        </a>
+        <a href="https://t.me/sogu_math" target="_blank" rel="noreferrer">
+          <Send size={17} />
+          Telegram
+        </a>
+        <a href="https://max.ru/join/ljBdIp_ClpJ_xJpDjYGoImfhAFGD4MP81O3B822u_lQ" target="_blank" rel="noreferrer">
+          <Radio size={17} />
+          MAX
+        </a>
+      </div>
+
+      <div className="footer-devs">
+        <span>Разработка сайта</span>
+        <p>Caucasian IT</p>
+        <small>Персаев Станислав, Тибилов Герман</small>
+      </div>
     </footer>
   )
 }
