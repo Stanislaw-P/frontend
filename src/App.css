@@ -517,7 +517,31 @@ h3 {
 }
 
 .preview-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.honors-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  width: 100%;
+}
+
+.honors-grid .graduate-card.is-compact {
+  grid-template-columns: 132px minmax(0, 1fr);
+  min-height: 220px;
+  padding: 24px;
+}
+
+.honors-grid .avatar-placeholder {
+  font-size: 34px;
+}
+
+.honors-grid .graduate-info h3 {
+  font-size: 25px;
+}
+
+.honors-grid .graduate-info p {
+  font-size: 17px;
 }
 
 .graduates-grid {
@@ -1324,6 +1348,28 @@ h3 {
   .nomination-row,
   .message-grid {
     grid-template-columns: 1fr;
+  }
+
+  .honors-grid {
+    max-width: none;
+  }
+
+  .honors-grid .graduate-card.is-compact {
+    grid-template-columns: 86px minmax(0, 1fr);
+    min-height: 0;
+    padding: 14px;
+  }
+
+  .honors-grid .avatar-placeholder {
+    font-size: 28px;
+  }
+
+  .honors-grid .graduate-info h3 {
+    font-size: 21px;
+  }
+
+  .honors-grid .graduate-info p {
+    font-size: inherit;
   }
 
   .wish-constellation {
