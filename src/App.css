@@ -1089,6 +1089,7 @@ h3 {
   display: grid;
   gap: 18px;
   padding: 20px;
+  overflow: hidden;
   transition:
     transform 180ms ease,
     box-shadow 180ms ease,
@@ -1106,17 +1107,37 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  min-width: 0;
   aspect-ratio: 16 / 10;
   border-radius: 8px;
   color: #ffffff;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent),
     linear-gradient(135deg, var(--rose), var(--brand), var(--green));
+  transition: filter 180ms ease;
+}
+
+.nomination-photo svg {
   transition: transform 180ms ease;
 }
 
 .nomination-card:hover .nomination-photo {
-  transform: scale(1.03);
+  filter: brightness(1.05);
+}
+
+.nomination-card:hover .nomination-photo svg {
+  transform: scale(1.12) rotate(-4deg);
+}
+
+.nomination-card.is-locked .nomination-photo {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent),
+    linear-gradient(135deg, #4c5873, #26324b);
+}
+
+.nomination-card.is-locked strong {
+  color: var(--muted);
 }
 
 .nomination-card strong {
@@ -1242,6 +1263,72 @@ h3 {
   color: var(--muted);
   font-size: 18px;
   line-height: 1.6;
+}
+
+.admin-live-control {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.status-pill.is-open {
+  color: #0f5132;
+  background: #d1f7df;
+}
+
+.status-pill.is-closed {
+  color: #7a4b00;
+  background: #fff0c2;
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  background: var(--surface);
+  font-weight: 800;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    background 160ms ease,
+    opacity 160ms ease;
+}
+
+.admin-actions button:not(:disabled):hover {
+  border-color: color-mix(in srgb, var(--brand) 48%, var(--line));
+  color: var(--brand-strong);
+  background: var(--surface-soft);
+}
+
+.admin-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.admin-error {
+  color: #d14343;
+  font-weight: 700;
 }
 
 .admin-steps {

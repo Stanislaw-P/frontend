@@ -393,6 +393,71 @@ function getInitials(name: string) {
     .join('')
 }
 
+function useEventState() {
+  const [nominationsRevealed, setNominationsRevealedState] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const loadState = async () => {
+    try {
+      const response = await fetch('/api/event-state')
+
+      if (!response.ok) {
+        throw new Error('Не удалось получить состояние мероприятия')
+      }
+
+      const data = (await response.json()) as { nominationsRevealed?: boolean }
+      setNominationsRevealedState(Boolean(data.nominationsRevealed))
+      setError('')
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Ошибка API')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const setNominationsRevealed = async (revealed: boolean) => {
+    setLoading(true)
+
+    try {
+      const response = await fetch(
+        revealed ? '/api/admin/nominations/open' : '/api/admin/nominations/close',
+        { method: 'POST' },
+      )
+
+      if (!response.ok) {
+        throw new Error('Не удалось обновить состояние номинаций')
+      }
+
+      const data = (await response.json()) as { nominationsRevealed?: boolean }
+      setNominationsRevealedState(Boolean(data.nominationsRevealed))
+      setError('')
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Ошибка API')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void loadState()
+
+    const intervalId = window.setInterval(() => {
+      void loadState()
+    }, 5000)
+
+    return () => window.clearInterval(intervalId)
+  }, [])
+
+  return {
+    nominationsRevealed,
+    loading,
+    error,
+    refresh: loadState,
+    setNominationsRevealed,
+  }
+}
+
 function App() {
   return (
     <Routes>
@@ -500,6 +565,8 @@ function Layout() {
 }
 
 function HomePage() {
+  const { nominationsRevealed } = useEventState()
+
   return (
     <>
       <section className="hero-section section-shell" id="hero">
@@ -573,7 +640,11 @@ function HomePage() {
         />
         <div className="nomination-row">
           {nominations.slice(0, 3).map((nomination) => (
-            <NominationCard key={nomination.id} nomination={nomination} />
+            <NominationCard
+              key={nomination.id}
+              nomination={nomination}
+              revealed={nominationsRevealed}
+            />
           ))}
         </div>
         <div className="section-action">
@@ -753,6 +824,8 @@ function GraduatesPage() {
 }
 
 function NominationsPage() {
+  const { nominationsRevealed } = useEventState()
+
   return (
     <section className="page-shell">
       <PageIntro
@@ -764,7 +837,11 @@ function NominationsPage() {
 
       <div className="nominations-grid">
         {nominations.map((nomination) => (
-          <NominationCard key={nomination.id} nomination={nomination} />
+          <NominationCard
+            key={nomination.id}
+            nomination={nomination}
+            revealed={nominationsRevealed}
+          />
         ))}
       </div>
     </section>
@@ -793,6 +870,8 @@ function GamePage() {
 }
 
 function AdminPage() {
+  const { nominationsRevealed, loading, error, setNominationsRevealed } = useEventState()
+
   return (
     <section className="admin-page page-shell">
       <PageIntro
@@ -806,11 +885,33 @@ function AdminPage() {
         <div className="admin-card">
           <ShieldCheck size={34} />
           <div>
-            <h2>Управление поздравлениями</h2>
+            <h2>Управление номинациями</h2>
             <p>
-              Позже здесь можно будет обновлять поздравления преподавателей, данные выпускников и
-              номинации через защищенный вход для организаторов.
+              Открой или закрой победителей номинаций для всех пользователей сайта. Сейчас админка
+              работает без пароля.
             </p>
+            <div className="admin-live-control">
+              <span className={nominationsRevealed ? 'status-pill is-open' : 'status-pill is-closed'}>
+                {nominationsRevealed ? 'Победители открыты' : 'Победители скрыты'}
+              </span>
+              <div className="admin-actions">
+                <button
+                  type="button"
+                  disabled={loading || nominationsRevealed}
+                  onClick={() => void setNominationsRevealed(true)}
+                >
+                  Открыть победителей
+                </button>
+                <button
+                  type="button"
+                  disabled={loading || !nominationsRevealed}
+                  onClick={() => void setNominationsRevealed(false)}
+                >
+                  Скрыть победителей
+                </button>
+              </div>
+              {error && <p className="admin-error">{error}</p>}
+            </div>
           </div>
         </div>
 
@@ -885,16 +986,22 @@ function GraduateCard({ graduate, compact = false }: { graduate: Graduate; compa
   )
 }
 
-function NominationCard({ nomination }: { nomination: Nomination }) {
+function NominationCard({
+  nomination,
+  revealed,
+}: {
+  nomination: Nomination
+  revealed: boolean
+}) {
   return (
-    <article className="nomination-card">
+    <article className={revealed ? 'nomination-card is-revealed' : 'nomination-card is-locked'}>
       <div className="nomination-photo">
-        <Award size={28} />
+        {revealed ? <Award size={28} /> : <LockKeyhole size={28} />}
       </div>
       <div>
         <span>Номинация</span>
         <h3>{nomination.title}</h3>
-        <strong>{nomination.winner}</strong>
+        <strong>{revealed ? nomination.winner : 'Победитель скрыт'}</strong>
       </div>
     </article>
   )
