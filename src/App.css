@@ -1285,6 +1285,10 @@ h3 {
   background: var(--surface-soft);
 }
 
+.leaderboard-list.is-admin li {
+  grid-template-columns: 38px minmax(0, 1fr) auto auto;
+}
+
 .leaderboard-place {
   display: grid;
   place-items: center;
@@ -1314,6 +1318,28 @@ h3 {
   color: var(--brand-strong);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
+}
+
+.leaderboard-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in srgb, #d14343 42%, var(--line));
+  border-radius: 8px;
+  color: #d14343;
+  background: color-mix(in srgb, #d14343 7%, var(--surface));
+  font-weight: 900;
+}
+
+.leaderboard-delete:not(:disabled):hover {
+  background: color-mix(in srgb, #d14343 13%, var(--surface));
+}
+
+.leaderboard-delete:disabled {
+  cursor: not-allowed;
+  opacity: 0.56;
 }
 
 .leaderboard-admin-tools {
@@ -1813,6 +1839,15 @@ h3 {
 
   .leaderboard-card {
     position: static;
+  }
+
+  .leaderboard-list.is-admin li {
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+  }
+
+  .leaderboard-list.is-admin .leaderboard-delete {
+    grid-column: 2 / -1;
+    width: fit-content;
   }
 
   .graduate-card,

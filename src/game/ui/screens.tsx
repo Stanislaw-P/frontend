@@ -1,4 +1,4 @@
-import { COURSES, PROF_NAMES } from '../game/constants';
+import { COURSES } from '../game/constants';
 import { formatTime, gradeFor } from '../game/progress';
 
 type ScoreStatus = 'idle' | 'saving' | 'saved' | 'error';
@@ -67,8 +67,8 @@ export function VictoryScreen({ level, onNext }: {
       <h1>{COURSES[level - 1]} сдан!</h1>
       <p className="subtitle">
         {ceremony
-          ? `Профессор ${PROF_NAMES[level]} повержен. Все экзамены сданы - осталось забрать диплом!`
-          : `Профессор ${PROF_NAMES[level]} повержен. Впереди новый курс!`}
+          ? `Курс пройден. Все экзамены сданы - осталось забрать диплом!`
+          : `Курс пройден. Впереди новый курс!`}
       </p>
       <button className="menu-btn big" onClick={onNext}>
         {ceremony ? 'На вручение диплома' : 'Далее'}

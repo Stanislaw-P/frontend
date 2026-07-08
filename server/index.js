@@ -100,6 +100,26 @@ async function deleteGameScores() {
   }
 }
 
+async function deleteGameScoresByPlayerName(playerName) {
+  const normalizedName = normalizePlayerName(playerName).toLowerCase()
+
+  if (!normalizedName) {
+    return { deleted: 0, scores: await readGameScores() }
+  }
+
+  const scores = await readGameScores()
+  const remainingScores = scores.filter((score) => {
+    return normalizePlayerName(score.playerName).toLowerCase() !== normalizedName
+  })
+
+  await writeGameScores(remainingScores)
+
+  return {
+    deleted: scores.length - remainingScores.length,
+    scores: remainingScores,
+  }
+}
+
 function normalizePlayerName(value) {
   return String(value || '')
     .trim()
@@ -309,6 +329,28 @@ async function handleApi(request, response, pathname) {
 
     await deleteGameScores()
     sendJson(response, 200, { scores: [], total: 0 })
+    return true
+  }
+
+  if (request.method === 'POST' && pathname === '/api/admin/game-scores/delete-player') {
+    if (!requireAdmin(request, response)) {
+      return true
+    }
+
+    const requestBody = await readJsonBody(request)
+    const playerName = normalizePlayerName(requestBody.playerName)
+
+    if (!playerName) {
+      sendJson(response, 400, { message: 'Не указано имя игрока' })
+      return true
+    }
+
+    const result = await deleteGameScoresByPlayerName(playerName)
+    sendJson(response, 200, {
+      deleted: result.deleted,
+      scores: getTopGameScores(result.scores),
+      total: result.scores.length,
+    })
     return true
   }
 

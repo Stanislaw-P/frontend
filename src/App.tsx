@@ -1049,6 +1049,7 @@ function AdminPage() {
   const [passwordValue, setPasswordValue] = useState('')
   const [leaderboardClearing, setLeaderboardClearing] = useState(false)
   const [leaderboardClearError, setLeaderboardClearError] = useState('')
+  const [deletingPlayerName, setDeletingPlayerName] = useState('')
 
   const handleLogin = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -1076,6 +1077,36 @@ function AdminPage() {
       setLeaderboardClearError(requestError instanceof Error ? requestError.message : 'Ошибка API')
     } finally {
       setLeaderboardClearing(false)
+    }
+  }
+
+  const deletePlayerScores = async (playerName: string) => {
+    if (!window.confirm(`Удалить все результаты игрока "${playerName}"?`)) {
+      return
+    }
+
+    setDeletingPlayerName(playerName)
+    setLeaderboardClearError('')
+
+    try {
+      const response = await fetch('/api/admin/game-scores/delete-player', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ playerName }),
+      })
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => ({}))) as { message?: string }
+        throw new Error(data.message || 'Не удалось удалить результаты игрока')
+      }
+
+      await leaderboard.refresh()
+    } catch (requestError) {
+      setLeaderboardClearError(requestError instanceof Error ? requestError.message : 'Ошибка API')
+    } finally {
+      setDeletingPlayerName('')
     }
   }
 
@@ -1165,6 +1196,8 @@ function AdminPage() {
             scores={leaderboard.scores}
             total={leaderboard.total}
             onClear={() => void clearLeaderboard()}
+            deletingPlayerName={deletingPlayerName}
+            onDeletePlayer={(playerName) => void deletePlayerScores(playerName)}
           />
         )}
         <div className="admin-steps" aria-label="Будущий процесс обновления контента">
@@ -1180,17 +1213,21 @@ function AdminPage() {
 function GameLeaderboardCard({
   admin = false,
   clearing = false,
+  deletingPlayerName = '',
   error,
   loading,
   onClear,
+  onDeletePlayer,
   scores,
   total,
 }: {
   admin?: boolean
   clearing?: boolean
+  deletingPlayerName?: string
   error: string
   loading: boolean
   onClear?: () => void
+  onDeletePlayer?: (playerName: string) => void
   scores: GameScore[]
   total: number
 }) {
@@ -1214,7 +1251,7 @@ function GameLeaderboardCard({
       )}
 
       {scores.length > 0 && (
-        <ol className="leaderboard-list">
+        <ol className={admin ? 'leaderboard-list is-admin' : 'leaderboard-list'}>
           {scores.map((score, index) => (
             <li key={score.id}>
               <span className="leaderboard-place">{index + 1}</span>
@@ -1223,6 +1260,16 @@ function GameLeaderboardCard({
                 <small>{score.fives} пятерок</small>
               </div>
               <time>{formatScoreTime(score.timeSec)}</time>
+              {admin && (
+                <button
+                  className="leaderboard-delete"
+                  type="button"
+                  disabled={deletingPlayerName === score.playerName}
+                  onClick={() => onDeletePlayer?.(score.playerName)}
+                >
+                  {deletingPlayerName === score.playerName ? 'Удаляем...' : 'Удалить'}
+                </button>
+              )}
             </li>
           ))}
         </ol>
