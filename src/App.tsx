@@ -4,6 +4,7 @@ import {
   ArrowRight,
   Award,
   BookOpen,
+  Clock3,
   Gamepad2,
   GraduationCap,
   Globe,
@@ -15,6 +16,7 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
+  Star,
   Sun,
   Users,
   X,
@@ -1145,13 +1147,19 @@ function GameLeaderboardCard({
       {scores.length > 0 && (
         <ol className={admin ? 'leaderboard-list is-admin' : 'leaderboard-list'}>
           {scores.map((score, index) => (
-            <li key={score.id}>
+            <li key={score.id} className={`leaderboard-rank-${index + 1}`}>
               <span className="leaderboard-place">{index + 1}</span>
               <div>
                 <strong>{score.playerName}</strong>
-                <small>{score.fives} пятерок</small>
+                <small>
+                  <Star size={14} />
+                  {score.fives} пятерок
+                </small>
               </div>
-              <time>{formatScoreTime(score.timeSec)}</time>
+              <time>
+                <Clock3 size={14} />
+                {formatScoreTime(score.timeSec)}
+              </time>
               {admin && (
                 <button
                   className="leaderboard-delete"
