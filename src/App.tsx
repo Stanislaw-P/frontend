@@ -26,6 +26,7 @@ import deanPortrait from './assets/people/dean.png'
 import gassievaPhoto from './assets/people/gassieva.jpg'
 import korenPhoto from './assets/people/koren.jpg'
 import vladimirPhoto from './assets/people/vladimir.png'
+import sikoevPhoto from './assets/people/cat.webp'
 import ExamsGame from './game/ExamsGame'
 import './App.css'
 
@@ -94,6 +95,7 @@ const graduates: Graduate[] = [
 		id: 4,
 		name: 'Сикоев Даниил',
 		direction: 'Прикладная математика и информатика',
+		photo: sikoevPhoto,
 		quote: 'Красный диплом',
 	},
 ]
