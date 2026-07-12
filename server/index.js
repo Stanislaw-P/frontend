@@ -1,6 +1,6 @@
 import { createServer } from 'node:http'
 import { randomBytes } from 'node:crypto'
-import { readFile, unlink, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -9,8 +9,9 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const rootDir = path.resolve(__dirname, '..')
 const distDir = path.join(rootDir, 'dist')
-const statePath = path.join(__dirname, 'data', 'event-state.json')
-const scoresPath = path.join(__dirname, 'data', 'game-scores.json')
+const dataDir = path.join(__dirname, 'data')
+const statePath = path.join(dataDir, 'event-state.json')
+const scoresPath = path.join(dataDir, 'game-scores.json')
 const envPath = path.join(rootDir, '.env')
 
 loadEnvFile(envPath)
@@ -20,6 +21,9 @@ const adminLogin = process.env.ADMIN_LOGIN
 const adminPassword = process.env.ADMIN_PASSWORD 
 const sessionCookieName = 'graduation_admin_session'
 const activeSessions = new Set()
+const defaultEventState = {
+  nominationsRevealed: false,
+}
 
 const mimeTypes = new Map([
   ['.html', 'text/html; charset=utf-8'],
@@ -65,6 +69,10 @@ function loadEnvFile(filePath) {
 }
 
 async function readEventState() {
+  if (!existsSync(statePath)) {
+    return writeEventState(defaultEventState)
+  }
+
   const rawState = await readFile(statePath, 'utf8')
   const parsedState = JSON.parse(rawState)
 
@@ -74,8 +82,13 @@ async function readEventState() {
 }
 
 async function writeEventState(nextState) {
+  await ensureDataDir()
   await writeFile(statePath, `${JSON.stringify(nextState, null, 2)}\n`, 'utf8')
   return nextState
+}
+
+async function ensureDataDir() {
+  await mkdir(dataDir, { recursive: true })
 }
 
 async function readGameScores() {
@@ -90,6 +103,7 @@ async function readGameScores() {
 }
 
 async function writeGameScores(scores) {
+  await ensureDataDir()
   await writeFile(scoresPath, `${JSON.stringify(scores, null, 2)}\n`, 'utf8')
   return scores
 }
